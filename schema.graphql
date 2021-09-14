@@ -1,0 +1,66 @@
+enum Status {
+  ACTIVE
+  EXECUTED
+  CANCELLED
+}
+
+type Order @entity {
+  id: ID!
+  orderId: Bytes!
+  recipient: User!
+  inputToken: Bytes!
+  outputToken: Bytes!
+  inputAmount: BigInt!
+  minReturnAmount: BigInt!
+  stoplossAmount: BigInt!
+  shares: BigInt!
+  orderEncodedData: Bytes!
+  createdAtBlock: BigInt!
+  status: Status!
+  executor: Executor
+  updatedAt: BigInt
+  inputTokenSymbol: String
+  outputTokenSymbol: String
+  decodedInputAmount: BigDecimal
+  decodedMinReturnAmount: BigDecimal
+  decodedStoplossAmount: BigDecimal
+  createdTxHash: Bytes
+  executedTxHash: Bytes
+  cancelledTxHash: Bytes
+}
+
+type User @entity {
+  id: ID!
+  address: Bytes!
+  orders: [Order!] @derivedFrom(field: "recipient")
+}
+
+type Executor @entity {
+  id: ID!
+  address: Bytes!
+  filledOrders: [Order!] @derivedFrom(field: "executor")
+}
+
+type AssetDetail @entity {
+  id: ID!
+  asset: Bytes!
+  strategy: Bytes
+  yieldToken: Bytes
+  totalFunds: BigInt!
+  totalShares: BigInt!
+  bufferPercent: BigInt
+  isWhitelistAsset: Boolean!
+}
+
+type State @entity {
+  id: ID!
+  baseFee: BigDecimal
+  handlers: [Handler!] @derivedFrom(field: "state")
+}
+
+type Handler @entity {
+  id: ID!
+  name: String
+  address: Bytes!
+  state: State!
+}

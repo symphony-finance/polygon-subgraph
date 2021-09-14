@@ -1,0 +1,60 @@
+specVersion: 0.0.2
+description: Symphony Finance Subgraph
+repository: https://github.com/symphony-finance/symphony-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Symphony
+    network: {{network}}
+    source:
+      address: '{{SymphonyAddress}}'
+      abi: Symphony
+      startBlock: {{SymphonyStartBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/mapping.ts
+      entities:
+        - Pool
+      abis:
+        - name: Symphony
+          file: ./abis/Symphony.json
+        - name: Erc20
+          file: ./abis/Erc20.json
+      eventHandlers:
+        - event: OrderCancelled(bytes32)
+          handler: handleOrderCancelled
+        - event: OrderCreated(bytes32,bytes)
+          handler: handleOrderCreated
+        - event: OrderExecuted(bytes32,address)
+          handler: handleOrderExecuted
+        - event: OrderUpdated(bytes32,bytes32,bytes)
+          handler: handleOrderUpdated
+        - event: AssetStrategyUpdated(address,address)
+          handler: handleAssetStrategyUpdated
+        - event: HandlerAdded(address)
+          handler: handleHandlerAdded
+        - event: HandlerRemoved(address)
+          handler: handleHandlerRemoved
+        - event: UpdatedBaseFee(uint256)
+          handler: handleUpdatedBaseFee
+        - event: UpdatedBufferPercentage(uint256)
+          handler: handleUpdatedBufferPercentage
+templates:
+  - name: Erc20
+    kind: ethereum/contract
+    network: kovan
+    source:
+      abi: Erc20
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Reserve
+      file: ./src/mapping.ts
+      abis:
+        - name: Erc20
+          file: ./abis/Erc20.json
