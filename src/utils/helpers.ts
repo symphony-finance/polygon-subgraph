@@ -1,12 +1,10 @@
 import {
     Bytes,
     BigInt,
-    Address,
     BigDecimal,
 } from "@graphprotocol/graph-ts";
 import {
     User,
-    Order,
     Executor,
     AssetDetail,
 } from "../../generated/schema";
@@ -19,9 +17,6 @@ import {
 import {
     Symphony as SymphonyContract,
 } from '../../generated/Symphony/Symphony';
-import {
-    Erc20 as Erc20Contract,
-} from '../../generated/templates/Erc20/Erc20';
 
 export let symphonyContract = SymphonyContract
     .bind(SYMPHONY_ADDRESS);
@@ -55,56 +50,6 @@ export function createExecutor(
         executor.save();
     }
 };
-
-export function updateOrderData(
-    orderId: string
-): void {
-    let order = Order.load(orderId);
-
-    let erc20inputToken = Erc20Contract.bind(
-        Address.fromString(
-            order.inputToken.toHexString()
-        )
-    );
-
-    let erc20outputToken = Erc20Contract.bind(
-        Address.fromString(
-            order.outputToken.toHexString()
-        )
-    );
-
-    let inputTokenSymbolResult = erc20inputToken.try_symbol();
-    let outputTokenSymbolResult = erc20outputToken.try_symbol();
-
-    if (!inputTokenSymbolResult.reverted) {
-        order.inputTokenSymbol = inputTokenSymbolResult.value;
-    }
-
-    if (!outputTokenSymbolResult.reverted) {
-        order.outputTokenSymbol = outputTokenSymbolResult.value;
-    }
-
-    let inputTokenDecimalsResult = erc20outputToken.try_decimals();
-
-    if (!inputTokenDecimalsResult.reverted) {
-        order.decodedInputAmount = getAmountWithoutDecimals(
-            order.inputAmount, inputTokenDecimalsResult.value
-        )
-    }
-
-    let outputTokenDecimalsResult = erc20outputToken.try_decimals();
-
-    if (!outputTokenDecimalsResult.reverted) {
-        order.decodedMinReturnAmount = getAmountWithoutDecimals(
-            order.minReturnAmount, outputTokenDecimalsResult.value
-        );
-        order.decodedStoplossAmount = getAmountWithoutDecimals(
-            order.stoplossAmount, outputTokenDecimalsResult.value
-        );
-    }
-
-    order.save();
-}
 
 export function getAmountWithoutDecimals(
     amount: BigInt,

@@ -30,7 +30,6 @@ import {
   createUser,
   createExecutor,
   symphonyContract,
-  updateOrderData,
   createAssetEntity,
   updateAssetFunds,
 } from './utils/helpers';
@@ -61,7 +60,6 @@ export function handleOrderCreated(
   order.save();
 
   createUser(decodeOrder.recipient);
-  updateOrderData(event.params.orderId.toHexString());
   createAssetEntity(decodeOrder.inputToken);
   createAssetEntity(decodeOrder.outputToken);
   updateAssetFunds(
@@ -78,17 +76,19 @@ export function handleOrderCancelled(
   let id = event.params.orderId.toHexString();
   let order = Order.load(id);
 
-  order.status = STATUS_CANCELLED;
-  order.updatedAt = event.block.timestamp;
-  order.cancelledTxHash = event.transaction.hash;
-  order.save();
+  if (order != null) {
+    order.status = STATUS_CANCELLED;
+    order.updatedAt = event.block.timestamp;
+    order.cancelledTxHash = event.transaction.hash;
+    order.save();
 
-  updateAssetFunds(
-    order.inputToken,
-    order.inputAmount,
-    order.shares,
-    STATUS_CANCELLED,
-  );
+    updateAssetFunds(
+      order.inputToken,
+      order.inputAmount,
+      order.shares,
+      STATUS_CANCELLED,
+    );
+  }
 }
 
 export function handleOrderExecuted(
@@ -97,19 +97,21 @@ export function handleOrderExecuted(
   let id = event.params.orderId.toHexString();
   let order = Order.load(id);
 
-  order.status = STATUS_EXECUTED;
-  order.updatedAt = event.block.timestamp;
-  order.executedTxHash = event.transaction.hash;
-  order.executor = event.params.executor.toHexString();
-  order.save();
+  if (order != null) {
+    order.status = STATUS_EXECUTED;
+    order.updatedAt = event.block.timestamp;
+    order.executedTxHash = event.transaction.hash;
+    order.executor = event.params.executor.toHexString();
+    order.save();
 
-  createExecutor(event.params.executor);
-  updateAssetFunds(
-    order.inputToken,
-    order.inputAmount,
-    order.shares,
-    STATUS_EXECUTED,
-  );
+    createExecutor(event.params.executor);
+    updateAssetFunds(
+      order.inputToken,
+      order.inputAmount,
+      order.shares,
+      STATUS_EXECUTED,
+    );
+  }
 }
 
 export function handleOrderUpdated(
@@ -144,7 +146,6 @@ export function handleOrderUpdated(
   newOrder.save();
 
   createUser(decodeOrder.recipient);
-  updateOrderData(event.params.newOrderId.toHexString());
   createAssetEntity(decodeOrder.outputToken);
 }
 

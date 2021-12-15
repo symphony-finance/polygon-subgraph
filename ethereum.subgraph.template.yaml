@@ -42,19 +42,3 @@ dataSources:
           handler: handleUpdatedBaseFee
         - event: UpdatedBufferPercentage(uint256)
           handler: handleUpdatedBufferPercentage
-templates:
-  - name: Erc20
-    kind: ethereum/contract
-    network: kovan
-    source:
-      abi: Erc20
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - Reserve
-      file: ./src/mapping.ts
-      abis:
-        - name: Erc20
-          file: ./abis/Erc20.json

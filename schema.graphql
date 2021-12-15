@@ -14,16 +14,11 @@ type Order @entity {
   minReturnAmount: BigInt!
   stoplossAmount: BigInt!
   shares: BigInt!
+  executor: Executor
+  status: Status!
   orderEncodedData: Bytes!
   createdAtBlock: BigInt!
-  status: Status!
-  executor: Executor
   updatedAt: BigInt
-  inputTokenSymbol: String
-  outputTokenSymbol: String
-  decodedInputAmount: BigDecimal
-  decodedMinReturnAmount: BigDecimal
-  decodedStoplossAmount: BigDecimal
   createdTxHash: Bytes
   executedTxHash: Bytes
   cancelledTxHash: Bytes
